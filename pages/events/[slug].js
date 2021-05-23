@@ -1,14 +1,32 @@
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import Layout from '@/components/Layout'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaPencilAlt, FaTimes } from 'react-icons/fa'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Event.module.css'
+import { useRouter } from 'next/router'
 
 export default function EventPage({ currEvt }) {
-  const deleteEvent = (e) => console.log('delete')
+  const router = useRouter()
+  const deleteEvent = async (e) => {
+    if (confirm('Biztosan törlöd az eseményt?')) {
+      const delReq = await fetch(`${API_URL}/events/${currEvt.id}`, {
+        method: 'DELETE',
+      })
+      const data = await delReq.json()
+
+      if (!delReq.ok) {
+        toast.error(data.message)
+      } else {
+        router.push('/events')
+      }
+    }
+  }
   return (
     <Layout>
+      <ToastContainer />
       <div className={styles.event}>
         <div className={styles.controls}>
           <Link href={`/event/edit/${currEvt.id}`}>

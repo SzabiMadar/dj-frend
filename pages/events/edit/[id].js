@@ -6,16 +6,17 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Form.module.css'
+import moment from 'moment'
 
-export default function AddEventPage() {
+export default function EditEventPage({ evt }) {
   const [values, setValues] = useState({
-    name: '',
-    performers: '',
-    venue: '',
-    address: '',
-    date: '',
-    time: '',
-    description: '',
+    name: evt.name,
+    performers: evt.performers,
+    venue: evt.venue,
+    address: evt.address,
+    date: evt.date,
+    time: evt.time,
+    description: evt.description,
   })
 
   const router = useRouter()
@@ -38,8 +39,8 @@ export default function AddEventPage() {
     } else {
       //Ha minden ki van töltve akkor POST request
 
-      const postReq = await fetch(`${API_URL}/events`, {
-        method: 'POST',
+      const postReq = await fetch(`${API_URL}/events/${evt.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -70,7 +71,7 @@ export default function AddEventPage() {
   return (
     <Layout>
       <Link href='/events'>{`< Vissza`}</Link>
-      <h1>Esemény hozzáadása</h1>
+      <h1>Esemény frissítése</h1>
       <ToastContainer />
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.grid}>
@@ -120,7 +121,7 @@ export default function AddEventPage() {
               type='date'
               id='date'
               name='date'
-              value={values.date}
+              value={moment(values.date).format('yyyy-MM-DD')}
               onChange={handleInputChange}
             />
           </div>
@@ -145,8 +146,17 @@ export default function AddEventPage() {
             onChange={handleInputChange}
           />
         </div>
-        <input type='submit' value='Esemény hozzáadása' className='btn' />
+        <input type='submit' value='Esemény frissítése' className='btn' />
       </form>
     </Layout>
   )
+}
+
+export async function getServerSideProps({ params: { id } }) {
+  const res = await fetch(`${API_URL}/events/${id}`)
+  const evt = await res.json()
+
+  return {
+    props: { evt },
+  }
 }
