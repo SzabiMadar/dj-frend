@@ -4,11 +4,17 @@ import Layout from '@/components/Layout'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Image from 'next/image'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Form.module.css'
 import moment from 'moment'
+import { FaImage } from 'react-icons/fa'
+import Modal from '@/components/Modal'
+import ImageUpload from '@/components/ImageUpload'
 
 export default function EditEventPage({ evt }) {
+  const router = useRouter()
+
   const [values, setValues] = useState({
     name: evt.name,
     performers: evt.performers,
@@ -19,7 +25,27 @@ export default function EditEventPage({ evt }) {
     description: evt.description,
   })
 
-  const router = useRouter()
+  const [showModal, setShowModal] = useState(false)
+  const [imagePreview, setImagePreview] = useState(
+    evt.image ? evt.image.formats.thumbnail.url : null
+  )
+
+  const imageUploaded = async (e) => {
+    const strapiRes = await fetch(`${API_URL}/events/${evt.id}`)
+    const data = await strapiRes.json()
+
+    setImagePreview(data.image.formats.thumbnail.url)
+    toast.success('Sikeres feltöltés', {
+      position: 'top-center',
+      autoClose: 5000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    })
+    setShowModal(false)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -148,6 +174,28 @@ export default function EditEventPage({ evt }) {
         </div>
         <input type='submit' value='Esemény frissítése' className='btn' />
       </form>
+      <h2>Esemény Képe</h2>
+      {imagePreview ? (
+        <Image src={imagePreview} height='100' width='170' />
+      ) : (
+        <div>
+          <p>Nincs kép feltöltve</p>
+        </div>
+      )}
+      <div>
+        <button
+          className='btn-secondary'
+          onClick={() => {
+            setShowModal(true)
+          }}
+        >
+          <FaImage />
+          <p className={styles.imageGomb}>Kép megadása</p>
+        </button>
+      </div>
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <ImageUpload evtId={evt.id} imageUploaded={imageUploaded} />
+      </Modal>
     </Layout>
   )
 }

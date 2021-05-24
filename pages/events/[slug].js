@@ -29,7 +29,7 @@ export default function EventPage({ currEvt }) {
       <ToastContainer />
       <div className={styles.event}>
         <div className={styles.controls}>
-          <Link href={`/event/edit/${currEvt.id}`}>
+          <Link href={`/events/edit/${currEvt.id}`}>
             <a>
               <FaPencilAlt /> Esemény szerkesztése
             </a>
@@ -58,7 +58,7 @@ export default function EventPage({ currEvt }) {
       <h3>Leírás :</h3>
       <p>{currEvt.description}</p>
       <h3>Helyszín : </h3>
-      <p>{`${currEvt.venue} , ${currEvt.adress}`}</p>
+      <p>{`${currEvt.venue} , ${currEvt.address}`}</p>
 
       <Link href='/events'>
         <a className={styles.back}> {'<'} Vissza </a>
