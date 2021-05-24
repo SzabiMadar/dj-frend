@@ -41,12 +41,12 @@ h1 {
 
 .btn-secondary {
   font: inherit;
-  font-size: 13px;
+  font-size: 16px;
   background: #000;
   color: #fff !important;
   border: 0;
   border-radius: 5px;
-  padding: 5px 15px;
+  padding: 10px 15px;
   margin: 0 20px;
   cursor: pointer;
 }
@@ -63,4 +63,8 @@ h1 {
 
 .btn-icon svg {
   margin-right: 5px;
+}
+
+.jobbraTol {
+  float: right;
 }
