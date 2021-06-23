@@ -1,4 +1,5 @@
 import { ToastContainer, toast } from 'react-toastify'
+import cookie from 'cookie'
 import 'react-toastify/dist/ReactToastify.css'
 import Layout from '@/components/Layout'
 import { useState } from 'react'
@@ -11,8 +12,9 @@ import moment from 'moment'
 import { FaImage } from 'react-icons/fa'
 import Modal from '@/components/Modal'
 import ImageUpload from '@/components/ImageUpload'
+import { parseCookies } from '@/helpers/index'
 
-export default function EditEventPage({ evt }) {
+export default function EditEventPage({ evt, token }) {
   const router = useRouter()
 
   const [values, setValues] = useState({
@@ -69,11 +71,23 @@ export default function EditEventPage({ evt }) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       })
 
       if (!postReq.ok) {
+        if (postReq.status === 403 || postReq.status === 401) {
+          toast.error('Nincs token', {
+            position: 'top-center',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          })
+          return
+        }
         toast.error('Valami hiba történt a szervernél!', {
           position: 'top-center',
           autoClose: 5000,
@@ -82,6 +96,7 @@ export default function EditEventPage({ evt }) {
           pauseOnHover: true,
           draggable: true,
         })
+        console.log(postReq)
       } else {
         const data = await postReq.json()
         router.push(`/events/${data.slug}`)
@@ -91,7 +106,6 @@ export default function EditEventPage({ evt }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-
     setValues({ ...values, [name]: value })
   }
   return (
@@ -194,17 +208,25 @@ export default function EditEventPage({ evt }) {
         </button>
       </div>
       <Modal show={showModal} onClose={() => setShowModal(false)}>
-        <ImageUpload evtId={evt.id} imageUploaded={imageUploaded} />
+        <ImageUpload
+          evtId={evt.id}
+          imageUploaded={imageUploaded}
+          token={token}
+        />
       </Modal>
     </Layout>
   )
 }
 
-export async function getServerSideProps({ params: { id } }) {
+export async function getServerSideProps({ params: { id }, req }) {
+  const { token } = parseCookies(req)
   const res = await fetch(`${API_URL}/events/${id}`)
   const evt = await res.json()
 
   return {
-    props: { evt },
+    props: {
+      evt,
+      token,
+    },
   }
 }

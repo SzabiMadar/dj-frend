@@ -8,7 +8,7 @@ export default function Pagination({ page, eventsCount, perPage }) {
       {/* előző gomb akkor látszik ha nem az első oldalon vagyunk */}
       {page > 1 && (
         <Link href={`/events?page=${page - 1}`}>
-          <a className='btn-secondary'>Előző</a>
+          <a className='btn-secondary balraTol'>Előző</a>
         </Link>
       )}
       {/* következő gomb akkor látszik ha nem az utolsó oldalon vagyunk */}

@@ -6,8 +6,9 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Form.module.css'
+import { parseCookies } from '@/helpers/index'
 
-export default function AddEventPage() {
+export default function AddEventPage({ token }) {
   const [values, setValues] = useState({
     name: '',
     performers: '',
@@ -42,11 +43,23 @@ export default function AddEventPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       })
 
       if (!postReq.ok) {
+        if (postReq.status === 403 || postReq.status === 401) {
+          toast.error('Nincs token', {
+            position: 'top-center',
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          })
+          return
+        }
         toast.error('Valami hiba történt a szervernél!', {
           position: 'top-center',
           autoClose: 5000,
@@ -149,4 +162,10 @@ export default function AddEventPage() {
       </form>
     </Layout>
   )
+}
+
+export async function getServerSideProps({ req }) {
+  const { token } = parseCookies(req)
+
+  return { props: { token } }
 }
